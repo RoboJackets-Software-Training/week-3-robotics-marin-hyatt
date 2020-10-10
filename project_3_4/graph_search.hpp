@@ -105,15 +105,46 @@ public:
             // IMPLEMENT CODE HERE!
 
             // Dequeued front path from queue (get and delete from queue)
+            std::vector<Node *> front_path = queue.front();
+            queue.pop();
+
             // Get path's last node (current node)
+            Node *current_node = front_path[front_path.size() - 1];
 
             // Leave if current node is exit node
+            //check if memory references are the same by dereferencing pointers
+            if (current_node == exitNode_) {
+                return front_path;
+            }
+
             // DEBUGGING: Iterate though nodes in solution path and set path grid cells (grid_) to "+" and print grid (displayGrid)
+            for (int i = 0; i < front_path.size(); i++) {
+                grid_[front_path[i]->r][front_path[i]->c] == "+";
+            }
+            displayGrid();
 
             // Get all adjacent nodes of the current node (use currNode->neighbors)
+            std::vector<Node *> adj_nodes = current_node->neighbors;
+
             // If an adjacent has not been visited (not in visited set),
             // mark it as visited and enqueue its path (copy current path. add the adjacent node, add to queue)
+            for (int i = 0; i < adj_nodes.size(); i++) {
+                if (!(std::count(visited.begin(), visited.end(), adj_nodes[i]))) {
+                    visited.insert(adj_nodes[i]);
+                    std::vector<Node *> new_path(front_path);
+                    new_path.push_back(adj_nodes[i]);
+                    queue.push(new_path);
+                }
+            }
+
             // DEBUGGING: Set visited cell in grid to "*" so they are different color when displaying
+            for (int r = 0; r < grid_.size(); r++) {
+                for (int c = 0; c < grid_[0].size(); c++) {
+                    if (std::count(visited.begin(), visited.end(), grid_[r][c])) {
+                        grid_[r][c] = "*";
+                    }
+                }
+            }
 
             // Print grid for debugging
             if (verbose)
@@ -141,16 +172,47 @@ public:
             // IMPLEMENT CODE HERE!
 
             // Dequeued front path from stack (get and delete from stack)
+            std::vector<Node *> front_path = stack.top();
+            stack.pop();
+
             // Get path's last node (current node)
+            Node *current_node = front_path[front_path.size() - 1];
+
             // Mark current node as visited
+            visited.insert(current_node);
+
             // DEBUGGING: Set visited cell in grid to "*" so they are different color when displaying
+            for (int r = 0; r < grid_.size(); r++) {
+                for (int c = 0; c < grid_[0].size(); c++) {
+                    if (std::count(visited.begin(), visited.end(), grid_[r][c])) {
+                        grid_[r][c] = "*";
+                    }
+                }
+            }
 
             // Leave if current node is exit node
+            if (current_node == exitNode_) {
+                return front_path;
+            }
             // DEBUGGING: Iterate though nodes in solution path and set path grid cells (grid_) to "+" and print grid (displayGrid)
+            for (int i = 0; i < front_path.size(); i++) {
+                grid_[front_path[i]->r][front_path[i]->c] == "+";
+            }
+            displayGrid();
 
             // Get all adjacent nodes of the current node (use currNode->neighbors)
+            std::vector<Node *> adj_nodes = current_node->neighbors;
+
             // If an adjacent has not been visited (not in visited set),
             // enqueue its path (copy current path. add the adjacent node, add to stack)
+            for (int i = 0; i < adj_nodes.size(); i++) {
+                if (!(std::count(visited.begin(), visited.end(), adj_nodes[i]))) {
+                    visited.insert(adj_nodes[i]);
+                    std::vector<Node *> new_path(front_path);
+                    new_path.push_back(adj_nodes[i]);
+                    queue.push(new_path);
+                }
+            }
 
             // Print grid for debugging
             if (verbose)
