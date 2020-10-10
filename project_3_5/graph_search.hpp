@@ -120,17 +120,21 @@ public:
     int heuristic(Node *node, Node *goal)
     {
         // IMPLEMENT CODE HERE!
-
         // Make the heuristic just be the Manhattan distance between the node and goal
-        return 0;
+        int h  = std::abs(grid_[goal->r] - grid_[node->r]) + std::abs(grid_[goal->c] - grid_[node->c]);
+        return h;
     }
 
     std::vector<Node *> reconstruct_path(std::map<Node *, Node *> cameFrom, Node *currNode)
     {
         // IMPLEMENT CODE HERE!
-
         // Construct path from the current node to the top most parent (startNode_)
-        return std::vector<Node *>{};
+        std::vector<Node *> total_path = {currNode};
+        while (cameFrom.count(currNode)) {
+            currNode = cameFrom.at(currNode);
+            total_path.insert(0, currNode);
+        }
+        return std::vector<Node *>{total_path};
     }
 
     std::vector<Node *> A_star(bool verbose)
@@ -152,13 +156,26 @@ public:
             // IMPLEMENT CODE HERE!
 
             // Dequeued front path from queue
+            Node *current_Node = openSet.top();
+            openSet.pop();
             // DEBUGGING: Set visited cell in grid to "*" so they are different color when displaying
+            grid_[current_Node->r][current_Node->c] = "*";
 
 
             // Leave if current node is exit node
             // Find path from start to exit by iterating over parents of nodes
             // DEBUGGING: Iterate though nodes in solution path and set path grid cells (grid_) to "+" and print grid (displayGrid)
-
+            if (current_Node == exitNode_)
+            {
+                std::vector<Node *> path = reconstruct_path(cameFrom, current_Node);
+                if (verbose)
+                {
+                    for (Node *n : path)
+                        grid_[n->r][n->c] = "+";
+                    displayGrid();
+                }
+                return path;
+            }
 
             // Get all adjacent nodes of the current node (use currNode->neighbors)
             // Calculate tentative_gScore := gScore[current] + cost(neighbor)
@@ -166,6 +183,15 @@ public:
             // update cameFrom[neighbor] and gScore[neighbor], then
             // with fScore := tentative_gScore + heuristic(neighbor, goal)
             // update openSet
+            for (Node *neighbor : current_Node->neighbors) {
+                int tentative_gScore = gScore.at(current_Node) + neighbor->cost;
+                if (tentative_gScore < gScore.at(neighbor)) {
+                    cameFrom[neighbor] = current_Node;
+                    gScore[neighbor] = tentative_gScore;
+                    int fScore = tentative_gScore + heuristic(neighbor, exitNode_);
+                    openSet.put(neighbor, fScore);
+                }
+            }
 
             if (verbose)
             {
